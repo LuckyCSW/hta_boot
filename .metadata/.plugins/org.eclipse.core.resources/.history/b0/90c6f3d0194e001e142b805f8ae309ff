@@ -1,0 +1,23 @@
+package com.naver.myhome4;
+
+
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer{
+	private static final String[] CLASSPATH_RESOURCE_LOCATIONS
+	= {
+			"classpath:/static/",
+			"classpath:/templates/",
+	};
+	
+	@Override
+	public void addViewControllers(ViewControllerRegisty registry) {
+		//url mapping "/"로 접속하면 "member/login"로 이동합니다.
+		registry.addViewController("/").setViewName("forward:/member/login");
+	}
+	
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/resources/**")
+		.addResourceLocations(CLASSPATH_RESOURCE_LOCATIONS);
+	}
+}

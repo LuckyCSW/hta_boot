@@ -1,0 +1,5 @@
+package com.naver.myhome4;
+
+public class WebMvcConfig {
+
+}

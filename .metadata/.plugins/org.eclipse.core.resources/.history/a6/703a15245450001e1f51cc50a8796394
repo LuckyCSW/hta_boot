@@ -1,0 +1,39 @@
+package com.naver.myhome4;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@EnableWebSecurity //스프링과 시큐리티 결합
+@Configuration	
+public class SecurityConfig {
+	
+	@Autowired
+	private DataSource datasource;
+	
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		
+		http.authorizeRequests().antMatchers("/resources/**/**").permitAll()
+		.antMatchers("/resources/**/**").permitAll()
+		.antMatchers("/member/login").permitAll()
+		.antMatchers("/member/join").permitAll()
+		.antMatchers("/member/idcheck").permitAll()
+		.antMatchers("/member/joinProcess").permitAll()
+		.antMatchers("/member/list").access("hasRole('ROLE_ADMIN')")
+		.antMatchers("/member/info").access("hasRole('ROLE_ADMIN')")
+		.antMatchers("/**").access("hasAnyRole('ROLE_MEMBER','ROLE_ADMIN')");
+	}
+	
+	@Bean
+	public BCryptPasswordEncoder encodePassword() {
+		return new BCryptPasswordEncoder();
+	}
+
+}

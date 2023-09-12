@@ -1,0 +1,69 @@
+package com.naver.myhome4;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+
+@EnableWebSecurity //스프링과 시큐리티 결합
+@Configuration	
+public class SecurityConfig {
+	
+	@Autowired
+	private DataSource datasource;
+	
+	//SecurityFilterChain 를 빈으로 등록하는 방식을 권장
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		
+		http.authorizeRequests().antMatchers("/resources/**/**").permitAll()
+				.antMatchers("/member/login").permitAll()
+				.antMatchers("/member/join").permitAll()
+				.antMatchers("/member/idcheck").permitAll()
+				.antMatchers("/member/joinProcess").permitAll()
+				.antMatchers("/member/list").access("hasRole('ROLE_ADMIN')")
+				.antMatchers("/member/info").access("hasRole('ROLE_ADMIN')")
+				.antMatchers("/**").access("hasAnyRole('ROLE_MEMBER','ROLE_ADMIN')");
+		
+		http.formLogin().loginPage("/member/login")
+				        .loginProcessingUrl("/member/loginProcess")
+				        .usernameParameter("id")
+				        .passwordParameter("password")
+				        .successHandler(loginSuccessHandler())
+				        .failureHandler(loginFailHandler());
+		/*
+		* (1) logoutSuccessUrl : 로그아웃 후 이동할 주소
+		* (2) logoutUrl : (여기서 처리하기 때문에 컨트롤러 logout 제거 합니다. post방식을 요구합니다.)
+		* (3) invalidateHttpSession : 로그아웃시 세션 속성들 제거
+		* (4) deleteCookies : 쿠키 제거
+		*/
+		http.logout().logoutSuccessUrl("/member/login")
+		.logoutUrl("/member/logout")
+		.invalidateHttpSession(true)
+		.deleteCookies("remember-me", "JSESSION_ID");
+		
+		http.rememberMe()
+	      .rememberMeParameter("remember-me")
+	      .userDetailsService(customUserService())
+	      .tokenValiditySeconds(2419200)
+	      .tokenRepository(tokenRepository());
+		
+		
+		http.exceptionHandling().accessDeniedHandler(accessDeniedHandler());
+		
+	}
+	
+	
+	
+	@Bean
+	public BCryptPasswordEncoder encodePassword() {
+		return new BCryptPasswordEncoder();
+	}
+
+}

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.naver.myhome4.mybatis.mapper.MemberMapper">
+	
+	<!-- id체크하기 위한 쿼리문 -->
+	<select id="isId" resultType="member" parameterType="String">
+		select * from member3 where id = #{id}
+	</select>
+	
+	<insert id="insert" parameterType="member">
+	    INSERT INTO member3
+	    VALUES 
+	    (#{id}, #{password}, #{name}, #{age}, #{gender}, #{email}, #{auth})
+	</insert>
+	
+	<update id="update" parameterType="member">
+		update member3
+		set name = #{name}, age = #{age},
+			gender = #{gender}, email = #{email}
+		where id = #{id}	
+	</update>
+	
+	<!--  
+	<select id="searchCount" resultType="int" parameterType="map">
+		select count(*)
+		from member
+		where id != 'admin'
+		<if test="search_field != null">
+			and
+			<choose>
+				<when test='search_field=="id"'>id</when>
+				<when test='search_field=="name"'>name</when>
+				<when test='search_field=="age"'>age</when>
+				<when test='search_field=="gender"'>gender</when>
+			</choose> 
+			like #{search_word}
+		</if>
+	</select>
+	
+	<select id="getSearchList" resultType="member" parameterType="map">
+	    SELECT *
+	    FROM (
+	        SELECT ROWNUM rnum, b.* 
+	        FROM (
+	            SELECT *
+	            FROM member
+	            WHERE id != 'admin'
+	            <if test="search_field != null">
+	                AND
+	                <choose>
+	                    <when test='search_field=="id"'>id</when>
+	                    <when test='search_field=="name"'>name</when>
+	                    <when test='search_field=="age"'>age</when>
+	                    <when test='search_field=="gender"'>gender</when>
+	                </choose>
+	                LIKE #{search_word}
+	            </if>
+	            ORDER BY id
+	        ) b
+	        WHERE ROWNUM &lt;= #{end}
+	    )
+	    WHERE rnum &gt;= #{start} AND rnum &lt;= #{end}
+	</select>
+	-->
+	
+	<sql id="search_">
+		<if test="search_field != null">
+			and
+			<choose>
+				<when test='search_field=="id"'>id</when>
+				<when test='search_field=="name"'>name</when>
+				<when test='search_field=="age"'>age</when>
+				<when test='search_field=="gender"'>gender</when>
+			</choose> 
+			like #{search_word}
+		</if>
+	</sql>
+	
+	<select id="getSearchListCount" resultType="int" parameterType="map">
+		select count(*)
+		from member3
+		where id != 'admin'
+		<include refid="search_" />	
+	</select>
+	
+	<select id="getSearchList" parameterType="map" resultType="member">
+      select * 
+      from (select rownum rnum, b.*
+           from (select * 
+                 from member3 
+                 where id != 'admin'
+                 <include refid="search_"/>
+                 order by id
+                 ) b
+           where rownum &lt;= #{end}
+           )
+      where rnum between #{start} and #{end}
+      <!-- where rnum &gt;= #{start} and rnum &lt;= #{end}  -->
+   </select>
+   
+   <delete id="delete" parameterType="String">
+      delete from Member3
+      where id = #{id}
+   </delete>
+	
+	
+</mapper>
